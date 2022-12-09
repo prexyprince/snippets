@@ -1,277 +1,284 @@
+var version = 1.75
+/* alert('so this is kinda buggy, but what you want to do is use WASD to move, movement is global, so the camera might not reflect where you move');
+alert('also, if you get stuck in a death loop, use ctrl to toggle it off, wait till you respawn, then use ctrl again to turn it on again');
+alert('you can use plus and minus to adjust speed too');
+alert('on the bottom right, you can see a list of hacks. use the up and down arrows to scroll through them');
+alert('for ones like fly, they are togled seperatly, and when you hover over them you can use + and - to adjust the fly speed');
+alert('when you hover over another one, such as instant win, press the right arrow, then you will activate it.');
+alert('like fly, you can go on to scale, then press + and - to adjust your persons scale.');
+alert('pause is toggleable with the right arrow.');
+alert('you can press 0 to toggle the visibility of the hack menu.');
+*/
+alert('NOTE: The Instant finish Hack only works offline! it will softlock you in ice party.');
+/**
+* TODO:
+* - Add TP Function
+* - Clean up code
+* - Make headers look noticibally different from hacks
+* - Make it so shift changes the speed at which variales change
+*/
+/**
+* FINISHED:
+* - Add Comments
+* - Finish Hack multiline Support
+* - Test Ice Party Support
+*
+*
+*/
+//defining Variables
+var cusX = 0, cusY = 0, cusZ = 0, active = true, activeTime = 0, speed = 0.5, scale = 1;
+//base position when entering fly mode
+var base = { x: player.position.x, y: player.position.y, z: player.position.z };
+var dev = document.createElement('div');
+//wether the dev menu is shown
+var devShow = false;
+var cusStyle = document.createElement('style');
+var hackMenu = document.createElement('div');
+//wether the hack menu is shown
+var hackMenuShow;
+//hack list
+var hacks = [{ name: "--Player--", value: "header" }, { name: "Scale", value: 1 }, { name: "Fly", value: 0.5 }, { name: "Turn Speed", value: steer }, { name: "--Game--", value: "header" }, { name: "Instant Win", value: undefined }, { name: "Pause", value: false }, { name: "TP To Ending", value: undefined }, { name: "--Other--", value: "header" }, { name: "Dev Menu", value: false }, { name: "Hack Count", value: 1 }, { name: "Log Debug", value: undefined }];
+//selected hack
+var hackId = 2;
+//for handeling keys
+const keyDown = {};
+//setting up fonts
+cusStyle.innerHTML = "@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');";
+//setting up dev menu
+dev.setAttribute('style', 'position:fixed; bottom:0; left:0; background-color:rgba(0, 0, 0, 0.65 ); font-family: "Press Start 2P", cursive; color:white; backdrop-filter:blur(4px);');
+dev.id = "dev";
+//setting up hack menu
+hackMenu.setAttribute('style', 'position:fixed; bottom:0; right:0; background-color:rgba(0, 0, 0, 0.65 ); color:white; backdrop-filter:blur(4px); font-family: "Press Start 2P", cursive; font-size: xx-large; width:15%;');
+hackMenu.id = "hackMenu";
+//appending all to body
+document.body.appendChild(dev);
+document.body.appendChild(hackMenu);
+document.body.appendChild(cusStyle);
+function drawHud() {
+document.getElementById('dev').innerHTML = `X: ${round(player.position.x, 2)}<br>Y: ${round(player.position.y, 2)}<br>Z: ${round(player.position.z, 2)}<br>Flight Speed: ${round(speed, 2)}<br>Scale: ${round(scale, 2)}<br>Turn Speed: ${round(steer, 2)}<br>Hack Length: ${hacks[10].value}`
+if (hacks[10].value === 1) {
+document.getElementById('hackMenu').innerHTML = `<span style="filter:brightness(50%); color:${getHackById(hackId - 1, "style")};">${getHackById(hackId - 1, "name")}</span><br><span style="color:${getHackById(hackId, "style")};">${getHackById(hackId, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 1, "style")};">${getHackById(hackId + 1, "name")}</span>`;
+}
+if (hacks[10].value === 2) {
+document.getElementById('hackMenu').innerHTML = `<span style="filter:brightness(50%); color:${getHackById(hackId - 2, "style")};">${getHackById(hackId - 2, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId - 1, "style")};">${getHackById(hackId - 1, "name")}</span><br><span style="color:${getHackById(hackId, "style")};">${getHackById(hackId, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 1, "style")};">${getHackById(hackId + 1, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 2, "style")};">${getHackById(hackId + 2, "name")}</span>`;
+}
+if (hacks[10].value === 3) {
+document.getElementById('hackMenu').innerHTML = `<span style="filter:brightness(50%); color:${getHackById(hackId - 3, "style")};">${getHackById(hackId - 3, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId - 2, "style")};">${getHackById(hackId - 2, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId - 1, "style")};">${getHackById(hackId - 1, "name")}</span><br><span style="color:${getHackById(hackId, "style")};">${getHackById(hackId, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 1, "style")};">${getHackById(hackId + 1, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 2, "style")};">${getHackById(hackId + 2, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 3, "style")};">${getHackById(hackId + 3, "name")}</span>`;
+}
+if (hacks[10].value === 4) {
+document.getElementById('hackMenu').innerHTML = `<span style="filter:brightness(50%); color:${getHackById(hackId - 4, "style")};">${getHackById(hackId - 4, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId - 3, "style")};">${getHackById(hackId - 3, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId - 2, "style")};">${getHackById(hackId - 2, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId - 1, "style")};">${getHackById(hackId - 1, "name")}</span><br><span style="color:${getHackById(hackId, "style")};">${getHackById(hackId, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 1, "style")};">${getHackById(hackId + 1, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 2, "style")};">${getHackById(hackId + 2, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 3, "style")};">${getHackById(hackId + 3, "name")}</span><br><span style="filter:brightness(50%); color:${getHackById(hackId + 4, "style")};">${getHackById(hackId + 4, "name")}</span>`;
+}
+if (devShow) {
+document.getElementById('dev').style.display = "block";
+} else {
+document.getElementById('dev').style.display = "none";
+};
+};
+function getHackById(id, type) {
+if (type == "name") {
+if (id < hacks.length && id > -1) {
+//check if the id is within the range
+return hacks[id].name
+} else {
+//it is not, so return a empty character
+return "&nbsp"
+};
+} else {
+if (id < hacks.length && id > -1) {
+if (hacks[id].value === true) {
+//the hack is "activated"
+return "darkgreen"
+} else {
+if (hacks[id].value == "header") {
+//makes headers bold
+return "white; font-weight:900"
+} else {
+return "white"
+}
+};
+}
+}
+};
+function activateHack() {
+let hack = hacks[hackId]
+if (hack.name == "Instant Win") {
+change_state.win();
+};
+if (hack.name == "Pause") {
+hack.value = !hack.value;
+alive = !hack.value;
+};
+if (hack.name == "Dev Menu") {
+hack.value = !hack.value;
+devShow = hack.value;
+};
+if (hack.name == "TP To Ending") {
+player.position.x = endings[0].position.x
+player.position.y = endings[0].position.y
+player.position.z = endings[0].position.z
+};
+if (hack.name == "Log Debug") {
+change_state.win();
+if (world.stage == "game") {
+socket.emit("win", {});
+}
+console.log('');
+}
+};
+function hackAdd(add, mult) {
+let hack = hacks[hackId]
+if (add) {
+if (hack.name == "Fly") {
+speed += 0.1 * mult;
+};
+if (hack.name == "Scale") {
+scale += 0.1 * mult;
+};
+if (hack.name == "Turn Speed") {
+steer += 0.005 * mult;
+};
+if (hack.name == "Hack Count") {
+if (hack.value < 4) {
+hack.value += 1;
+};
+};
+} else {
+if (hack.name == "Fly") {
+speed -= 0.1 * mult;
+};
+if (hack.name == "Scale") {
+scale -= 0.1 * mult;;
+};
+if (hack.name == "Turn Speed") {
+steer -= 0.005 * mult;
+};
+if (hack.name == "Hack Count") {
+if (hack.value > 1) {
+hack.value -= 1;
+};
+};
+}
+};
+function onKeypress(event) {
+keyDown[event.key] = true;
+};
+function onKeyUp(event) {
+keyDown[event.key] = false;
+};
+function round(n, d) {
+//round numbers
+return (Math.round(n * (10 ** d)) / 10 ** d);
+}
+window.addEventListener('keydown', onKeypress);
+window.addEventListener('keyup', onKeyUp);
 function main() {
-//container
-var b3dConsole = document.createElement("div");
-b3dConsole.id = "b3dConsoleContainer"
-b3dConsole.innerHTML = b3dConsoleInner;
-//view
-var b3dArray = document.createElement('div');
-b3dArray.id = "b3dArray";
-//debug
-var b3dDebug = document.createElement('div');
-b3dDebug.id = "b3dDebug";
-//scripts
-var b3dScripts = document.createElement("script");
-b3dScripts.innerHTML = b3dScriptsInner;
-//styles
-var b3dStyles = document.createElement('style');
-b3dStyles.innerHTML = b3dStylesInner;
-//loading
-document.body.appendChild(b3dConsole);
-document.body.appendChild(b3dArray);
-document.body.appendChild(b3dDebug);
-document.body.appendChild(b3dStyles);
-document.body.appendChild(b3dScripts);
+if (keyDown["Shift"]) {
+cusY -= speed;
 };
-const b3dScriptsInner = `
-var b3dShown = true;
-var b3dArrayInner = "";
-var b3dArrayContents = [];
-function mainLoop() {
-//inf Jump
-if (document.getElementById('c_infJump').checked == true) {
-app.player.allowJump = true;
+if (keyDown[" "]) {
+cusY += speed;
+hacks[6].value = false
 };
-//force grapple
-if (document.getElementById('c_forceGrapple').checked == true) {
-app.player.mode = "grapple";
+if (keyDown["a"]) {
+cusX += speed;
 };
-//custom scale
-if (document.getElementById('c_scale').checked == true) {
-document.getElementById('c_scale_box').style.display = "block";
+if (keyDown["d"]) {
+cusX -= speed;
+};
+if (keyDown["w"]) {
+cusZ -= speed;
+hacks[6].value = false
+};
+if (keyDown["s"]) {
+cusZ += speed;
+};
+if (keyDown["c"]) {
+if (world.stage == "game") {
+socket.emit("win", {});
+};
+};
+if (keyDown[";"]) {
+hackAdd(false, 2)
+};
+if (keyDown["'"]){
+hackAdd(true, 2);
+};
+if (active) {
+if (activeTime > 0) {
+activeTime -= speed;
 } else {
-document.getElementById('c_scale_box').style.display = "none";
-};
-//Custom gravity
-if (document.getElementById('c_customGrav').checked == true) {
-document.getElementById('c_customGrav_box').style.display = "block";
-let i_customGrav = {x:document.getElementById('c_customGrav_x').value, y:document.getElementById('c_customGrav_y').value};
-document.getElementById('c_customGrav_p').innerHTML = "x: " + i_customGrav.x + ", y: " + i_customGrav.y;
-app.engine.world.gravity.x = i_customGrav.x; app.engine.world.gravity.y = i_customGrav.y;
-}else{
-document.getElementById('c_customGrav_box').style.display = "none";
+//set player position to the base position set, when fly mode was entered, plus the offset.
+player.position.x = base.x + cusX;
+player.position.y = base.y + cusY;
+player.position.z = base.z + cusZ;/*
+camera.rotation.z = camBase.x;
+camera.rotation.x = camBase.y;
+camera.rotation.y = camBase.z; */
+//minimize camera movemnt
+controls.right = false;
+controls.left = false;
+action = 0;
 }
-//Debug Menu
-if (document.getElementById('c_debug').checked == true){
-document.getElementById('b3dDebug').style.display = "block";
-document.getElementById('b3dDebug').innerHTML = "X: " + roundInt(app.player.position.x, 3) + "<br>Y: " + roundInt(app.player.position.y, 3) + "<br>XV: " + roundInt(app.player.getVelocity().x, 3) + "<br>YV: " + roundInt(app.player.getVelocity().y, 3) + "<br>FPS: " + app.fps.fps;
-}else{
-document.getElementById('b3dDebug').style.display = "none";
-};
-//invincibility
-if(document.getElementById('c_noKill').checked == true){
-app.player.kill=function(){console.log("YOU DIED... JK");};
-}else{
-app.player.kill=function(){if(!1==this.isFrozen()){this.freeze(!0),this.visible=!1,this.killTimeout=setTimeout(function(){app.player.restart()},1e3);for(var i={x:this.scale.x/4,y:this.scale.y/4,z:this.scale.z/4},t=-2;t<2;t++)for(var e=-2;e<2;e++){var o=randomNumber(0,360*(Math.PI/180)),s={color:this.color,position:{x:this.position.x+e*i.x+i.x/2,y:this.position.y+t*i.y+i.y/2,z:0},rotation:{x:0,y:0,z:o},scale:{x:i.x,y:i.y,z:i.z},isStatic:!1,friction:0},l=app.level.createObject("cube");app.level.setObjectProperties(l,s),app.level.addObject(l,app),l.isParticle=!0,l.setColors(this.color),Matter.Body.setVelocity(l.body,this.body.velocity)}}};
-};
-//custom cam scale
-if(document.getElementById('c_camScale').checked == true){
-document.getElementById('c_camScale_box').style.display = "block";
-let camScaleValue = document.getElementById('c_camScale_range').value;
-app.camera.scale.x = camScaleValue; app.camera.scale.y = camScaleValue;
-}else{
-document.getElementById('c_camScale_box').style.display = "none";
-app.camera.scale.x = 1; app.camera.scale.y = 1;
-};
-b3dArrayContentsFill();
-};
-function b3dArrayContentsFill() {
-b3dArrayContents = [];
-if (document.getElementById('c_scale').checked) { b3dArrayContents.push("Custom Player Scale")};
-if (document.getElementById('c_infJump').checked) { b3dArrayContents.push("Infinite Jump")};
-if (document.getElementById('c_forceGrapple').checked) { b3dArrayContents.push("Force Grapple Hook")};
-if (document.getElementById('c_customGrav').checked) { b3dArrayContents.push("Custom World Gravity")};
-if (document.getElementById('c_debug').checked) { b3dArrayContents.push("Debug Menu")};
-if (document.getElementById('c_camScale').checked) { b3dArrayContents.push("Custom Camera Scale")};
-if (document.getElementById('c_noKill').checked) { b3dArrayContents.push("Invincibility")};
-if (document.getElementById('c_jumpHeight').checked) { b3dArrayContents.push("Custom Jump Height")};
-//sort lol
-b3dArrayContents.sort((b, a) => a.length - b.length)
-b3dArrayInner = ""
-for (let aryI = 0; aryI < b3dArrayContents.length; aryI++) {
-b3dArrayInner += "<p>" + b3dArrayContents[aryI] + "</p>";
-};
-if (document.getElementById('c_array').checked) {
-document.getElementById('b3dArray').innerHTML = b3dArrayInner;
-} else {
-document.getElementById('b3dArray').innerHTML = "";
-};
-};
-function roundInt(n, d){
-return Math.round((10**d)*n)/(10**d)
-};
-function setJumpFunc(n){
-app.player.jump=function(){if("jump"==this.mode&&!0==this.allowJump){this.allowJump=!1;var o=app.engine.world.gravity,t=Math.PI/2-Matter.Vector.angle({x:0,y:0},o),i=this.body.velocity,y=1,e=Math.PI/20,s=n,d={x:-(o.x*s*this.body.mass),y:-(o.y*s*this.body.mass)};(i=Matter.Vector.rotate(i,t)).y=0,e*=y=i.x>=0?1:-1,i=Matter.Vector.rotate(i,-t),this.body.speed<.25*this.maxSpeed&&(e=0),Matter.Body.setVelocity(this.body,i),Matter.Body.setAngularVelocity(this.body,e),Matter.Body.applyForce(this.body,this.body.position,d)}};
 }
+drawHud();
+if (scale != 1) {
+player.scaling.x = 1 * scale;
+player.scaling.y = 0.16 * scale;
+player.scaling.z = 1 * scale;
+}
+};
 document.addEventListener("keydown", function (event) {
-if (event.key == "0") {
-b3dShown = !b3dShown;
-if (b3dShown) {
-document.querySelector('#b3dConsoleContainer').style.display = "none";
+if (event.key == "Control") {
+active = !active;
+if (active) {
+base = { x: player.position.x, y: player.position.y, z: player.position.z };
+// camBase = { x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z }
+cusX = 0;
+cusY = 0;
+cusZ = 0;
+steer = 0;
+camera.rotation.y = 3.14;
+camera.rotation.x = cam_depression;
 } else {
-document.querySelector('#b3dConsoleContainer').style.display = "block";
+steer = 0.022;
+}
+activeTime = 10;
+};
+if (event.key == "=") {
+hackAdd(true, 1);
+};
+if (event.key == "-") {
+hackAdd(false, 1)
+};
+if (event.key == "]"){
+hackAdd(true, 2);
+};
+if (event.key == "["){
+hackAdd(false, 2);
+};
+if (event.key == "0") {
+//on key 0 pressed, toggle visibilty of the hack menu
+hackMenuShow = !hackMenuShow;
+if (hackMenuShow) {
+document.getElementById('hackMenu').style.display = "block";
+} else {
+document.getElementById('hackMenu').style.display = "none";
 };
 };
-});
-document.getElementById('c_scale').addEventListener('change', function() {
-if (this.checked == false) {
-app.player.setScale({x:16, y:16, z:16}, false);
+if (event.key == "ArrowUp") {
+if (hackId - 1 > -1) {
+hackId -= 1;
+};
+//for some reason, when alive=false, pressing up will resume the session when on normal ice dodo, but not ice party.
+hacks[6].value = false
+};
+if (event.key == "ArrowDown") {
+if (hackId + 1 < hacks.length) {
+hackId += 1;
+}
+};
+if (event.key == "ArrowRight") {
+activateHack();
 };
 });
-document.getElementById('c_customGrav').addEventListener('change', function() {
-if (this.checked == false) {
-app.engine.world.gravity.x = 0; app.engine.world.gravity.y = 1;
-};
-});
-document.getElementById('c_forceGrapple').addEventListener('change', function() {
-if (this.checked == false) {
-app.player.mode = "jump"
-};
-});
-document.getElementById('c_jumpHeight').addEventListener('change', function() {
-if(this.checked == true){
-document.getElementById('c_jumpHeight_box').style.display = "block";
-setJumpFunc(document.getElementById('c_jumpHeight_range').value);
-document.getElementById('c_jumpHeight_p').innerHTML = document.getElementById('c_jumpHeight_range').value;
-}else{
-setJumpFunc(0.025);
-document.getElementById('c_jumpHeight_box').style.display = "none";
-};
-});
-document.getElementById('c_jumpHeight_range').addEventListener('change', function() {
-setJumpFunc(document.getElementById('c_jumpHeight_range').value);
-document.getElementById('c_jumpHeight_p').innerHTML = document.getElementById('c_jumpHeight_range').value;
-});
-setInterval(mainLoop, 10);
-`
-const b3dConsoleInner = `
-<h1>Gameplay</h1>
-<h2>Infinite Jump</h2>
-<label class="switch">
-<input id="c_infJump" type="checkbox">
-<span class="slider round"></span>
-</label>
-<h2>Force Grapple</h2>
-<label class="switch">
-<input id="c_forceGrapple" type="checkbox">
-<span class="slider round"></span>
-</label>
-<h2>Custom Gravity</h2>
-<label class="switch">
-<input id="c_customGrav" type="checkbox">
-<span class="slider round"></span>
-</label>
-<div id="c_customGrav_box">
-<input type="range" value="0" min="-10" max="10" id="c_customGrav_x">
-<input type="range" value="1" min="-10" max="10" id="c_customGrav_y">
-<p id="c_customGrav_p"></p>
-</div>
-<h2>Invincibility</h2>
-<label class="switch">
-<input id="c_noKill" type="checkbox">
-<span class="slider round"></span>
-</label>
-<h2>Custom Jump Height</h2>
-<label class="switch">
-<input id="c_jumpHeight" type="checkbox">
-<span class="slider round"></span>
-</label>
-<div style="display:none;" id="c_jumpHeight_box">
-<input type="range" value="0.025" min="0.005" step="0.005" max="1" id="c_jumpHeight_range">
-<p id="c_jumpHeight_p"></p>
-</div>
-<hr>
-<h1>Scale</h1>
-<label class="switch">
-<input value="true" id="c_scale" type="checkbox">
-<span class="slider round"></span>
-</label>
-<div id="c_scale_box">
-<h2>Grow Player</h2>
-<a onclick="app.player.setScale({ x: app.player.scale.x * 1.2, y: app.player.scale.y * 1.2, z: app.player.scale.z * 1.2 }, false);" class="c_button">+</a>
-<h2>Shrink Player</h2>
-<a onclick="app.player.setScale({ x: app.player.scale.x * 0.8, y: app.player.scale.y * 0.8, z: app.player.scale.z * 0.8 }, false);" class="c_button">+</a>
-</div>
-<h2>Scale Camera</h2>
-<label class="switch">
-<input value="true" id="c_camScale" type="checkbox">
-<span class="slider round"></span>
-</label>
-<div id="c_camScale_box">
-<input type="range" value="1" min="0.1" step="0.1" max="20" id="c_camScale_range">
-</div>
-<hr>
-<h1>HUD</h1>
-<h2>Cheat Array</h2>
-<label class="switch">
-<input id="c_array" type="checkbox">
-<span class="slider round"></span>
-</label>
-<h2>Show Debug Menu</h2>
-<label class="switch">
-<input id="c_debug" type="checkbox">
-<span class="slider round"></span>
-</label>
-`
-const b3dStylesInner = `
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
-#b3dConsoleContainer {
-position:fixed;
-bottom:-40vh;
-left:0px;
-height:45vh;
-width:100vw;
-background-color:rgba(0, 0, 0, .25);
-border-top:solid 3px black;
-transition:500ms;
-padding:15px;
-backdrop-filter:blur(5px);
-color:white;
-text-align:center;
-overflow-y:scroll;
-}
-#b3dConsoleContainer:hover{
-bottom:0vh;
-}
-.c_button{
-border:none;
-border-radius:8px;
-padding:10px;
-transition:300ms;
-background-color:white;
-color:black;
-content-align:center;
-}
-.c_button:hover{
-filter:brightness(80%);
-cursor:pointer;
-transform:scale(1.2);
-}
-#b3dArray{
-top:0px;
-right:0px;
-position:fixed;
-pointer-events: none;
-text-align:right;
-z-index:274672;
-}
-#b3dArray>p{
-background-color:rgba(0, 0, 0, 0.55);
-text-shadow: 0px 0px 7px rgba(255, 255, 255, 1);
-color:white;
-margin:-1px;
-font-family: 'Courier Prime', monospace;
-}
-#b3dDebug{
-position:fixed;
-background-color:rgba(0, 0, 0, 0.85);
-text-shadow: 0px 0px 7px rgba(255, 255, 255, 1);
-color:white;
-bottom:0px;
-left:0px;
-z-index:274671;
-pointer-events:none;
-}
-/*Switch styles*/
-.switch{position:relative;display:inline-block;width:60px;height:34px;}.switch input {opacity: 0;width: 0;height: 0;}.slider {position: absolute;cursor: pointer;top: 0;left: 0;right: 0;bottom: 0;background-color: #ccc;-webkit-transition: .4s;transition: .4s;}.slider:before {position: absolute;content: "";height: 26px;width: 26px;left: 4px;bottom: 4px;background-color: white;-webkit-transition: .4s;transition: .4s;}input:checked + .slider {background-color: green;}input:focus + .slider {box-shadow: 0 0 1px #2196F3;}input:checked + .slider:before {-webkit-transform: translateX(26px);-ms-transform: translateX(26px);transform: translateX(26px);}.slider.round {border-radius: 34px;}.slider.round:before {border-radius: 50%;}
-`;
-main();
+setInterval(main, 10);
